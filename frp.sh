@@ -1,4 +1,35 @@
 #!/bin/bash
+conf_file='[common]
+# A literal address or host name for IPv6 must be enclosed
+# in square brackets, as in "[::1]:80", "[ipv6-host]:http" or "[ipv6-host%zone]:80"
+bind_addr = 0.0.0.0
+bind_port = 7000
+# udp port used for kcp protocol, it can be same with bind_port
+# if not set, kcp is disabled in frps
+kcp_bind_port = 7000
+# if you want to configure or reload frps by dashboard, dashboard_port must be set
+dashboard_port = 7500
+# dashboard assets directory(only for debug mode)
+dashboard_user = king
+dashboard_pwd = Happydaygo4
+# assets_dir = ./static
+vhost_http_port = 8080
+vhost_https_port = 443
+# console or real logFile path like ./frps.log
+log_file = ./frps.log
+# debug, info, warn, error
+log_level = info
+log_max_days = 3
+# privilege mode is the only supported mode since v0.10.0
+privilege_token = rpLjPOgPWDiaZKDe
+# only allow frpc to bind ports you list, if you set nothing, there wont be any limit
+#privilege_allow_ports = 1-65535
+# pool_count in each proxy will change to max_pool_count if they exceed the maximum value
+max_pool_count = 50
+# if tcp stream multiplexing is used, default is true
+tcp_mux = true'
+frps_task="$(ps -e | grep -o frps)"
+search_dash="$(ls -l /bin/sh | grep -o dash)"
 until false 
 do
 echo "(1).安裝frp"
@@ -35,36 +66,7 @@ case ${option} in
 					wait
 					rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
 					wait
-					echo '[common]
-					# A literal address or host name for IPv6 must be enclosed
-					# in square brackets, as in "[::1]:80", "[ipv6-host]:http" or "[ipv6-host%zone]:80"
-					bind_addr = 0.0.0.0
-					bind_port = 7000
-					# udp port used for kcp protocol, it can be same with bind_port
-					# if not set, kcp is disabled in frps
-					kcp_bind_port = 7000
-					# if you want to configure or reload frps by dashboard, dashboard_port must be set
-					dashboard_port = 7500
-					# dashboard assets directory(only for debug mode)
-					dashboard_user = king
-					dashboard_pwd = Happydaygo4
-					# assets_dir = ./static
-
-					vhost_http_port = 8080
-					vhost_https_port = 443
-					# console or real logFile path like ./frps.log
-					log_file = ./frps.log
-					# debug, info, warn, error
-					log_level = info
-					log_max_days = 3
-					# privilege mode is the only supported mode since v0.10.0
-					privilege_token = rpLjPOgPWDiaZKDe
-					# only allow frpc to bind ports you list, if you set nothing, there wont be any limit
-					#privilege_allow_ports = 1-65535
-					# pool_count in each proxy will change to max_pool_count if they exceed the maximum value
-					max_pool_count = 50
-					# if tcp stream multiplexing is used, default is true
-					tcp_mux = true' > /root/frp/frps.ini
+					echo "${conf_file}" > /root/frp/frps.ini
 					wait
 					echo "reinstall success"
 					read -p "Press any key to continue." var
@@ -86,36 +88,7 @@ case ${option} in
 				wait
 				rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
 				wait
-				echo '[common]
-				# A literal address or host name for IPv6 must be enclosed
-				# in square brackets, as in "[::1]:80", "[ipv6-host]:http" or "[ipv6-host%zone]:80"
-				bind_addr = 0.0.0.0
-				bind_port = 7000
-				# udp port used for kcp protocol, it can be same with bind_port
-				# if not set, kcp is disabled in frps
-				kcp_bind_port = 7000
-				# if you want to configure or reload frps by dashboard, dashboard_port must be set
-				dashboard_port = 7500
-				# dashboard assets directory(only for debug mode)
-				dashboard_user = king
-				dashboard_pwd = Happydaygo4
-				# assets_dir = ./static
-
-				vhost_http_port = 8080
-				vhost_https_port = 443
-				# console or real logFile path like ./frps.log
-				log_file = ./frps.log
-				# debug, info, warn, error
-				log_level = info
-				log_max_days = 3
-				# privilege mode is the only supported mode since v0.10.0
-				privilege_token = rpLjPOgPWDiaZKDe
-				# only allow frpc to bind ports you list, if you set nothing, there wont be any limit
-				#privilege_allow_ports = 1-65535
-				# pool_count in each proxy will change to max_pool_count if they exceed the maximum value
-				max_pool_count = 50
-				# if tcp stream multiplexing is used, default is true
-				tcp_mux = true' > /root/frp/frps.ini
+				echo "${conf_file}" > /root/frp/frps.ini
 				fi
 	;;
 	2)
@@ -124,13 +97,16 @@ case ${option} in
  echo "starting frp server"
 	;;
 	3)
+	if [ "${frps_task}" = "frps" ]; then
 	killall frps
 	wait
 	read -p "Press any key to continue." var
 	clear
+	else
+	echo "frp尚未啟動"
+	fi
 	;;
 	4)
-search_dash="$(ls -l /bin/sh | grep -o dash)"
 if [ "${search_dash}" = "dash" ]; then
 	sudo dpkg-reconfigure dash
 	wait
@@ -209,14 +185,23 @@ fi
 	5)
 	vim /root/frp/frps.ini
 	wait
+	
+	if [ "${frps_task}" = "frps" ]; then
 	killall frps
 	wait
 	nohup /root/frp/frps -c /root/frp/frps.ini &
 	wait
+	else
+	continue
+	fi
 	;;
 	6)
-	killall frps || echo "frps have been stop"
+	if [ "${frps_task}" = "frps" ]; then
+	killall frps 
+	else
+	echo "frps have been stop"
 	wait
+	fi
 	rm -rf /root/frp
 	rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
 	rm -rf /etc/init.d/frps
