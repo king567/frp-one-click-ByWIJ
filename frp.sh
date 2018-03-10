@@ -1,4 +1,6 @@
 #!/bin/bash
+until false 
+do
 conf_file='[common]
 # A literal address or host name for IPv6 must be enclosed
 # in square brackets, as in "[::1]:80", "[ipv6-host]:http" or "[ipv6-host%zone]:80"
@@ -16,7 +18,7 @@ dashboard_pwd = Happydaygo4
 vhost_http_port = 8080
 vhost_https_port = 443
 # console or real logFile path like ./frps.log
-log_file = ./frps.log
+log_file = /root/frp/frps.log
 # debug, info, warn, error
 log_level = info
 log_max_days = 3
@@ -30,15 +32,15 @@ max_pool_count = 50
 tcp_mux = true'
 frps_task="$(ps -e | grep -o frps)"
 search_dash="$(ls -l /bin/sh | grep -o dash)"
-until false 
-do
+frps_log="$(ls /root/frp/frps*.log | grep -o log)"
 echo "(1).安裝frp"
 echo "(2).啟動frp"
 echo "(3).停止frp"
 echo "(4).將frp加入開機啟動"
 echo "(5).編輯frp設定檔"
-echo "(6).解除安裝frp"
-echo "(7).離開"
+echo "(6).查看frp log檔"
+echo "(7).解除安裝frp"
+echo "(8).離開"
 read -p "請輸入選項(1-7):" option
 case ${option} in
 	1)
@@ -196,6 +198,13 @@ case ${option} in
 		fi
 	;;
 	6)
+		if [ "${frps_log}" = "log" ]; then
+		watch tail /root/frp/frps*.log
+		else
+		echo "尚未存在任何日誌"
+		fi
+	;;
+	7)
 		if [ "${frps_task}" = "frps" ]; then
 		killall frps 
 		else
@@ -210,7 +219,7 @@ case ${option} in
 		read -p "Press any key to continue." var
 		clear
 	;;
-	7)
+	8)
 		read -p "Press any key to continue." var
 		clear
 		break
