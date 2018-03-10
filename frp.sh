@@ -11,43 +11,110 @@ echo "(7).離開"
 read -p "請輸入選項(1-7):" option
 case ${option} in
 	1)
-wget -P /root https://github.com/fatedier/frp/releases/download/v0.16.0/frp_0.16.0_linux_amd64.tar.gz
-wait
-tar -zxvf  /root/frp_0.16.0_linux_amd64.tar.gz
-wait
-mv /root/frp_0.16.0_linux_amd64 /root/frp
-wait
-echo '[common]
-# A literal address or host name for IPv6 must be enclosed
-# in square brackets, as in "[::1]:80", "[ipv6-host]:http" or "[ipv6-host%zone]:80"
-bind_addr = 0.0.0.0
-bind_port = 7000
-# udp port used for kcp protocol, it can be same with bind_port
-# if not set, kcp is disabled in frps
-kcp_bind_port = 7000
-# if you want to configure or reload frps by dashboard, dashboard_port must be set
-dashboard_port = 7500
-# dashboard assets directory(only for debug mode)
-dashboard_user = king
-dashboard_pwd = Happydaygo4
-# assets_dir = ./static
+	echo "檢查使否已安裝frp..."
+		if [ -d "/root/frp" ]; then
+			echo "已安裝frp"
+			echo "是否要重新安裝?"
+			echo "(1).Yes (2).No"
+			read -p "請輸入(1-2):" decide
+				case ${decide} in
+				1)
+					killall frps || echo "frps have been stop"
+					wait
+					rm -rf /root/frp
+					rm -rf /etc/init.d/frps
+					rm -rf /etc/systemd/system/frp.service
+					wait
+					echo "uninstall success"
+					echo "reinstalling..."
+					wget -P /root https://github.com/fatedier/frp/releases/download/v0.16.0/frp_0.16.0_linux_amd64.tar.gz
+					wait
+					tar -zxvf  /root/frp_0.16.0_linux_amd64.tar.gz
+					wait
+					mv /root/frp_0.16.0_linux_amd64 /root/frp
+					wait
+					rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
+					wait
+					echo '[common]
+					# A literal address or host name for IPv6 must be enclosed
+					# in square brackets, as in "[::1]:80", "[ipv6-host]:http" or "[ipv6-host%zone]:80"
+					bind_addr = 0.0.0.0
+					bind_port = 7000
+					# udp port used for kcp protocol, it can be same with bind_port
+					# if not set, kcp is disabled in frps
+					kcp_bind_port = 7000
+					# if you want to configure or reload frps by dashboard, dashboard_port must be set
+					dashboard_port = 7500
+					# dashboard assets directory(only for debug mode)
+					dashboard_user = king
+					dashboard_pwd = Happydaygo4
+					# assets_dir = ./static
 
-vhost_http_port = 8080
-vhost_https_port = 443
-# console or real logFile path like ./frps.log
-log_file = ./frps.log
-# debug, info, warn, error
-log_level = info
-log_max_days = 3
-# privilege mode is the only supported mode since v0.10.0
-privilege_token = rpLjPOgPWDiaZKDe
-# only allow frpc to bind ports you list, if you set nothing, there wont be any limit
-#privilege_allow_ports = 1-65535
-# pool_count in each proxy will change to max_pool_count if they exceed the maximum value
-max_pool_count = 50
-# if tcp stream multiplexing is used, default is true
-tcp_mux = true' > /root/frp/frps.ini
-;;
+					vhost_http_port = 8080
+					vhost_https_port = 443
+					# console or real logFile path like ./frps.log
+					log_file = ./frps.log
+					# debug, info, warn, error
+					log_level = info
+					log_max_days = 3
+					# privilege mode is the only supported mode since v0.10.0
+					privilege_token = rpLjPOgPWDiaZKDe
+					# only allow frpc to bind ports you list, if you set nothing, there wont be any limit
+					#privilege_allow_ports = 1-65535
+					# pool_count in each proxy will change to max_pool_count if they exceed the maximum value
+					max_pool_count = 50
+					# if tcp stream multiplexing is used, default is true
+					tcp_mux = true' > /root/frp/frps.ini
+				
+					;;
+				2)
+					continue
+					clear
+					
+					;;
+					esac
+		else
+				echo "安裝中..."
+				wget -P /root https://github.com/fatedier/frp/releases/download/v0.16.0/frp_0.16.0_linux_amd64.tar.gz
+				wait
+				tar -zxvf  /root/frp_0.16.0_linux_amd64.tar.gz
+				wait
+				mv /root/frp_0.16.0_linux_amd64 /root/frp
+				wait
+				rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
+				wait
+				echo '[common]
+				# A literal address or host name for IPv6 must be enclosed
+				# in square brackets, as in "[::1]:80", "[ipv6-host]:http" or "[ipv6-host%zone]:80"
+				bind_addr = 0.0.0.0
+				bind_port = 7000
+				# udp port used for kcp protocol, it can be same with bind_port
+				# if not set, kcp is disabled in frps
+				kcp_bind_port = 7000
+				# if you want to configure or reload frps by dashboard, dashboard_port must be set
+				dashboard_port = 7500
+				# dashboard assets directory(only for debug mode)
+				dashboard_user = king
+				dashboard_pwd = Happydaygo4
+				# assets_dir = ./static
+
+				vhost_http_port = 8080
+				vhost_https_port = 443
+				# console or real logFile path like ./frps.log
+				log_file = ./frps.log
+				# debug, info, warn, error
+				log_level = info
+				log_max_days = 3
+				# privilege mode is the only supported mode since v0.10.0
+				privilege_token = rpLjPOgPWDiaZKDe
+				# only allow frpc to bind ports you list, if you set nothing, there wont be any limit
+				#privilege_allow_ports = 1-65535
+				# pool_count in each proxy will change to max_pool_count if they exceed the maximum value
+				max_pool_count = 50
+				# if tcp stream multiplexing is used, default is true
+				tcp_mux = true' > /root/frp/frps.ini
+				fi
+	;;
 	2)
  nohup="/usr/bin/nohup"
  ${nohup} /root/frp/frps -c /root/frp/frps.ini &
