@@ -94,9 +94,13 @@ case ${option} in
 		fi
 	;;
 	2)
+		if [ -d "/root/frp" ]; then
 		nohup="/usr/bin/nohup"
 		${nohup} /root/frp/frps -c /root/frp/frps.ini &
 		echo "starting frp server"
+		else
+		echo "frp尚未安裝"
+		fi
 	;;
 	3)
 		if [ "${frps_task}" = "frps" ]; then
