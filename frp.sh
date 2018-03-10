@@ -91,7 +91,7 @@ case ${option} in
 				rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
 				wait
 				echo "${conf_file}" > /root/frp/frps.ini
-				fi
+		fi
 	;;
 	2)
 		nohup="/usr/bin/nohup"
