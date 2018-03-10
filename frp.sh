@@ -32,7 +32,7 @@ max_pool_count = 50
 tcp_mux = true'
 frps_task="$(ps -e | grep -o frps)"
 search_dash="$(ls -l /bin/sh | grep -o dash)"
-frps_log="$(ls /root/frp/frps*.log | grep -o log)"
+
 echo "(1).安裝frp"
 echo "(2).啟動frp"
 echo "(3).停止frp"
@@ -198,7 +198,8 @@ case ${option} in
 		fi
 	;;
 	6)
-		if [ "${frps_log}" = "log" ]; then
+		frps_log="$(ls /root/frp/frps*.log)"
+		if [ -f "${frps_log}" ]; then
 		watch tail /root/frp/frps*.log
 		else
 		echo "尚未存在任何日誌"
