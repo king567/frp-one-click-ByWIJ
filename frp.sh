@@ -92,128 +92,128 @@ case ${option} in
 				fi
 	;;
 	2)
- nohup="/usr/bin/nohup"
- ${nohup} /root/frp/frps -c /root/frp/frps.ini &
- echo "starting frp server"
+		nohup="/usr/bin/nohup"
+		${nohup} /root/frp/frps -c /root/frp/frps.ini &
+		echo "starting frp server"
 	;;
 	3)
-	if [ "${frps_task}" = "frps" ]; then
-	killall frps
-	wait
-	read -p "Press any key to continue." var
-	clear
-	else
-	echo "frp尚未啟動"
-	fi
+		if [ "${frps_task}" = "frps" ]; then
+		killall frps
+		wait
+		read -p "Press any key to continue." var
+		clear
+		else
+		echo "frp尚未啟動"
+		fi
 	;;
 	4)
-if [ "${search_dash}" = "dash" ]; then
-	sudo dpkg-reconfigure dash
-	wait
-	read -p "Press any key to continue." var
-else
-	source /etc/os-release 
-case $ID in
-debian|ubuntu|devuan)
-touch /etc/init.d/frps
-chmod 755 /etc/init.d/frps
-touch /root/frp/frp-start.sh
-chmod +x /root/frp/frp-start.sh
-echo "nohup="/usr/bin/nohup"
-nohup ./root/frp/frps -c /root/frp/frps.ini &" > /root/frp/frp-start.sh
-echo '#!/bin/sh
-### BEGIN INIT INFO
-# Provides: frp
-# Required-Start: $remote_fs $network
-# Required-Stop: $remote_fs $network
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
-# Short-Description: frp nettool
-### END INIT INFO
- 
-case "$1" in
-start)
- 
- echo -n "starting frp"
-/bin/sh /root/frp/frp-start.sh
+		if [ "${search_dash}" = "dash" ]; then
+			sudo dpkg-reconfigure dash
+			wait
+			read -p "Press any key to continue." var
+		else
+			source /etc/os-release 
+		case $ID in
+		debian|ubuntu|devuan)
+			touch /etc/init.d/frps
+			chmod 755 /etc/init.d/frps
+			touch /root/frp/frp-start.sh
+			chmod +x /root/frp/frp-start.sh
+			echo "nohup="/usr/bin/nohup"
+			nohup ./root/frp/frps -c /root/frp/frps.ini &" > /root/frp/frp-start.sh
+			echo '#!/bin/sh
+			### BEGIN INIT INFO
+			# Provides: frp
+			# Required-Start: $remote_fs $network
+			# Required-Stop: $remote_fs $network
+			# Default-Start: 2 3 4 5
+			# Default-Stop: 0 1 6
+			# Short-Description: frp nettool
+			### END INIT INFO
+			 
+			case "$1" in
+			start)
+			 
+			 echo -n "starting frp"
+			/bin/sh /root/frp/frp-start.sh
 
-;;
-stop)
- 
- echo -n "stoping frp"
- killall frps
-;;
-restart)
- 
- killall frps
-/bin/sh /root/frp/frp-start.sh
-;;
-esac
-exit ' > /etc/init.d/frps
-wait
-update-rc.d frps defaults
-echo "Ubuntu添加開機自啟成功"
-echo "相關指令為service frps (start|stop|restart)"
-	read -p "Press any key to continue." var
-	clear
-    ;;
-centos|fedora|rhel)
-touch /root/frp/frp-start.sh
-	chmod +x /root/frp/frp-start.sh
-	echo 'nohup="/usr/bin/nohup"
-nohup ./root/frp/frps -c /root/frp/frps.ini &' > /root/frp/frp-start.sh
-	touch /etc/systemd/system/frp.service
-	chmod 754 /etc/systemd/system/frp.service
-	echo "[Unit]
-Description=FRP Service
-[Service]
-User=root
-Type=forking
-ExecStart=/usr/bin/sh /root/frp/frp-start.sh
-ExecStop=/usr/bin/killall frps
-[Install]
-WantedBy=multi-user.target" > /etc/systemd/system/frp.service
-wait
-echo "使用方式 systemctl (start|stop|status|restart|enable) frp.service"
-	read -p "Press any key to continue." var
-	clear
-	
-    ;;
-esac
-fi
+			;;
+			stop)
+			 
+			 echo -n "stoping frp"
+			 killall frps
+			;;
+			restart)
+			 
+			 killall frps
+			/bin/sh /root/frp/frp-start.sh
+			;;
+			esac
+			exit ' > /etc/init.d/frps
+			wait
+			update-rc.d frps defaults
+			echo "Ubuntu添加開機自啟成功"
+			echo "相關指令為service frps (start|stop|restart)"
+				read -p "Press any key to continue." var
+				clear
+		;;
+		centos|fedora|rhel)
+			touch /root/frp/frp-start.sh
+				chmod +x /root/frp/frp-start.sh
+				echo 'nohup="/usr/bin/nohup"
+			nohup ./root/frp/frps -c /root/frp/frps.ini &' > /root/frp/frp-start.sh
+				touch /etc/systemd/system/frp.service
+				chmod 754 /etc/systemd/system/frp.service
+				echo "[Unit]
+			Description=FRP Service
+			[Service]
+			User=root
+			Type=forking
+			ExecStart=/usr/bin/sh /root/frp/frp-start.sh
+			ExecStop=/usr/bin/killall frps
+			[Install]
+			WantedBy=multi-user.target" > /etc/systemd/system/frp.service
+			wait
+			echo "使用方式 systemctl (start|stop|status|restart|enable) frp.service"
+				read -p "Press any key to continue." var
+				clear
+			
+		;;
+		esac
+		fi
 	;;
 	5)
-	vim /root/frp/frps.ini
-	wait
-	
-	if [ "${frps_task}" = "frps" ]; then
-	killall frps
-	wait
-	nohup /root/frp/frps -c /root/frp/frps.ini &
-	wait
-	else
-	continue
-	fi
+		vim /root/frp/frps.ini
+		wait
+		
+		if [ "${frps_task}" = "frps" ]; then
+		killall frps
+		wait
+		nohup /root/frp/frps -c /root/frp/frps.ini &
+		wait
+		else
+		continue
+		fi
 	;;
 	6)
-	if [ "${frps_task}" = "frps" ]; then
-	killall frps 
-	else
-	echo "frps have been stop"
-	wait
-	fi
-	rm -rf /root/frp
-	rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
-	rm -rf /etc/init.d/frps
-	rm -rf /etc/systemd/system/frp.service
-	echo "uninstall success"
-	read -p "Press any key to continue." var
-	clear
+		if [ "${frps_task}" = "frps" ]; then
+		killall frps 
+		else
+		echo "frps have been stop"
+		wait
+		fi
+		rm -rf /root/frp
+		rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
+		rm -rf /etc/init.d/frps
+		rm -rf /etc/systemd/system/frp.service
+		echo "uninstall success"
+		read -p "Press any key to continue." var
+		clear
 	;;
 	7)
-	read -p "Press any key to continue." var
-	clear
-	break
+		read -p "Press any key to continue." var
+		clear
+		break
 	;;
 esac
 done
