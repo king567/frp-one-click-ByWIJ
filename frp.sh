@@ -65,7 +65,10 @@ case ${option} in
 					max_pool_count = 50
 					# if tcp stream multiplexing is used, default is true
 					tcp_mux = true' > /root/frp/frps.ini
-				
+					wait
+					echo "reinstall success"
+					read -p "Press any key to continue." var
+					clear
 					;;
 				2)
 					continue
