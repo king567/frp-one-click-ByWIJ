@@ -241,5 +241,10 @@ case ${option} in
 		clear
 		break
 	;;
+	*)
+		echo "輸入錯誤，請重新輸入一次"
+		read -p "Press any key to continue." var
+		clear
+	;;
 esac
 done
