@@ -252,6 +252,12 @@ esac
 	{
 	case ${platform} in
 	1)
+		if [ -f "/bin/killall" ]; then
+		echo ""
+		else
+		yum install psmisc -y || apt-get install psmisc -y
+		fi
+		wait
 		if [ "${frps_task}" = "frps" ]; then
 		killall frps
 		wait
@@ -263,6 +269,12 @@ esac
 		fi
 		;;
 	2)
+		if [ -f "/bin/killall" ]; then
+		echo ""
+		else
+		wait
+		yum install psmisc -y || apt-get install psmisc -y
+		fi
 		if [ "${frpc_task}" = "frpc" ]; then
 		killall frpc
 		wait
