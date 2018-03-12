@@ -60,7 +60,7 @@ echo "${server_conf_file}"
 2)
 	client_conf_file="[common]
 	# A literal address or host name for IPv6 must be enclosed
-	server_addr = 195.123.237.97
+	server_addr = "${ip_address}"
 	server_port = 7000
 
 	# if you want to connect frps by http proxy, you can set http_proxy here or in global environment variables
@@ -567,6 +567,8 @@ case ${platform} in
 	read -p "請輸入選項(1-8):" option
 	case ${option} in
 		1)
+		read -p "請輸入frp server IP 位置 :" ip_address
+		wait
 		install_frp 
 		;;
 		2)
