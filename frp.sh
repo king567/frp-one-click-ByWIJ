@@ -346,6 +346,7 @@ exit ' > /etc/init.d/frps
 			[Install]
 			WantedBy=multi-user.target" > /etc/systemd/system/frp.service
 			wait
+			echo "add success"
 			echo "使用方式 systemctl (start|stop|status|restart|enable) frp.service"
 				read -p "Press any key to continue." var
 				clear
