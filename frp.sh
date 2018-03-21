@@ -108,7 +108,8 @@ echo "${server_conf_file}"
 echo "${client_conf_file}"
 ;;
 esac
-}
+
+ }
 	
 	case ${platform} in
 	1)
