@@ -300,6 +300,7 @@ esac
 			source /etc/os-release 
 		case $ID in
 		debian|ubuntu|devuan)
+			mkdir -p /root/frp/
 			touch /etc/init.d/frps
 			chmod 755 /etc/init.d/frps
 			touch /root/frp/frp-start.sh
