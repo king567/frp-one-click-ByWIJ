@@ -1,4 +1,6 @@
 #!/bin/bash
+until false
+do
 echo ' ________________________________________________________ '
 echo '|  ______   _____    _____      _                     _  |'
 echo '| |  ____| |  __ \  |  __ \    | |                   | | |'
@@ -391,6 +393,8 @@ echo "(1).frp for server"
 echo "(2).frp for client"
 echo "(3).quit"
 read -p "Please Input Number (1-3):" platform
+until false
+do
 	case ${platform} in
 1)
 echo "(1).Install frps"
@@ -463,4 +467,5 @@ exit
 	echo "Error Input Please Try Again"
 ;;
 esac
-
+done
+done
