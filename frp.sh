@@ -376,8 +376,8 @@ Server_strutrue
 		else
 		continue
 		fi
-		if [ -f "/etc/systemd/system/frp.service" ]; then
-		rm -r /etc/systemd/system/frp.service
+		if [ -f "/usr/lib/systemd/system/frp.service" ]; then
+		rm -r /usr/lib/systemd/system/frp.service
 		else
 		continue
 		fi
