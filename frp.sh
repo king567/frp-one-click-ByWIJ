@@ -1,5 +1,4 @@
 #!/bin/bash
-cd /root
 echo ' ________________________________________________________ '
 echo '|  ______   _____    _____      _                     _  |'
 echo '| |  ____| |  __ \  |  __ \    | |                   | | |'
@@ -10,109 +9,145 @@ echo '| |_|      |_|  \_\ |_|         \__|  \___/   \___/  |_| |'
 echo '|                                                        |' 
 echo '|                                               By WIJ   |'
 echo '|________________________________________________________|'  
-echo '															'
-until false 
-do
 
-echo "choose whitch frp platform you want to use"
-echo "(1).frp for server"
-echo "(2).frp for client"
-echo "(3).quit"
-read -p "請輸入選項(1-3):" platform
+some_setting ()
+{
+frp_path="/root/frp"
+Install_Path="/root"
+kill_task_frps="$(killall frps)"
+kill_task_frpc="$(killall frpc)"
+frps_task="$(ps -e | grep -o frps)"
+frpc_task="$(ps -e | grep -o frpc)"
+search_dash="$(ls -l /bin/sh | grep -o dash)"
+systemctl="$(ls /bin/systemctl)"
+}
 
-	install_frp ()
-	{
-		conf_file ()
-	{
-	case ${platform} in
-1)
-	server_conf_file='[common]
-	# A literal address or host name for IPv6 must be enclosed
-	# in square brackets, as in "[::1]:80", "[ipv6-host]:http" or "[ipv6-host%zone]:80"
-	bind_addr = 0.0.0.0
-	bind_port = 7000
-	# udp port used for kcp protocol, it can be same with bind_port
-	# if not set, kcp is disabled in frps
-	kcp_bind_port = 7000
-	# if you want to configure or reload frps by dashboard, dashboard_port must be set
-	dashboard_port = 7500
-	# dashboard assets directory(only for debug mode)
-	dashboard_user = king
-	dashboard_pwd = Happydaygo4
-	# assets_dir = ./static
-	vhost_http_port = 8080
-	vhost_https_port = 443
-	# console or real logFile path like ./frps.log
-	log_file = /root/frp/frps.log
-	# debug, info, warn, error
-	log_level = info
-	log_max_days = 3
-	# privilege mode is the only supported mode since v0.10.0
-	privilege_token = rpLjPOgPWDiaZKDe
-	# only allow frpc to bind ports you list, if you set nothing, there wont be any limit
-	#privilege_allow_ports = 1-65535
-	# pool_count in each proxy will change to max_pool_count if they exceed the maximum value
-	max_pool_count = 50
-	# if tcp stream multiplexing is used, default is true
-	tcp_mux = true'
-echo "${server_conf_file}"
+Ask_answer ()
+{
+read -p "please input your server IP :" Server_IP
+read -p "add dashboard user :" User
+read -p "input user password :" Password
+read -p "input http Virtual host Port:" Vhost_http_port
+read -p "input https Virtual host Port:" Vhost_https_port
+}
+
+systemctl_boot_up_conf ()
+{
+service_file="
+[Unit]
+Description=FRP Service
+After=network.target syslog.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/root/frp/frps -c /root/frp/frps.ini
+Restart=always
+RestartSec=1min
+ExecStop=/usr/bin/killall frps
+
+[Install]
+WantedBy=multi-user.target
+"
+}
+
+service_boot_up_conf ()
+{
+init_d='#!/bin/sh
+### BEGIN INIT INFO
+# Provides: frp
+# Required-Start: $remote_fs $network
+# Required-Stop: $remote_fs $network
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: frp nettool
+### END INIT INFO
+
+case "$1" in
+start)
+
+echo -n "starting frp"
+/bin/sh /root/frp/frp-start.sh
+
 ;;
-2)
-	client_conf_file="[common]
-	# A literal address or host name for IPv6 must be enclosed
-	server_addr = "${ip_address}"
-	server_port = 7000
+stop)
 
-	# if you want to connect frps by http proxy, you can set http_proxy here or in global environment variables
-	# it only works when protocol is tcp
-	# http_proxy = http://user:pwd@192.168.1.128:8080
+echo -n "stoping frp"
+killall frps
+;;
+restart)
 
-	# console or real logFile path like ./frpc.log
-	log_file = /root/frp/frpc.log
-
-	# trace, debug, info, warn, error
-	log_level = info
-
-	log_max_days = 3
-
-	# for authentication
-	privilege_token = rpLjPOgPWDiaZKDe
-
-	# set admin address for control frpcs action by http api such as reload
-	admin_addr = 127.0.0.1
-	admin_port = 7400
-	admin_user = king
-	admin_pwd = Happydaygo4
-
-	# connections will be established in advance, default value is zero
-	pool_count = 5
-
-	# if tcp stream multiplexing is used, default is true, it must be same with frps
-	tcp_mux = true
-
-	# decide if exit program when first login failed, otherwise continuous relogin to frps
-	# default is true
-	login_fail_exit = true
-
-	# communication protocol used to connect to server
-	# now it supports tcp and kcp, default is tcp
-	protocol = tcp
-	[range:tcp_port_02]
-	type = tcp
-	local_ip = 127.0.0.1
-	local_port = 3389
-	remote_port = 4000
-	use_encryption = true
-	use_compression = true
-	"
-echo "${client_conf_file}"
+killall frps
+/bin/sh /root/frp/frp-start.sh
 ;;
 esac
+exit'
+}
 
- }
-	
-	case ${platform} in
-	1)
+Server_Setting ()
+{
+Server_Conf_file="
+[common]
+bind_addr = ${Server_IP}
+bind_port = 7000
+kcp_bind_port = 7000
+dashboard_port = 7500
+dashboard_user = ${User}
+dashboard_pwd = ${Password}
+vhost_http_port = ${Vhost_http_port}
+vhost_https_port = ${Vhost_https_port}
+log_file = ./frps.log
+log_level = info
+log_max_days = 3
+privilege_token = rpLjPOgPWDiaZKDe
+max_pool_count = 50
+tcp_mux = true
+"
+}
+
+Client_Setting ()
+{
+Clent_Conf_file="
+[common]
+server_addr = ${Server_IP}
+server_port = 7000
+log_file = ./frpc.log
+log_level = info
+log_max_days = 3
+privilege_token = rpLjPOgPWDiaZKDe
+admin_addr = 127.0.0.1
+admin_port = 7400
+admin_user = ${User}
+admin_pwd = ${Password}
+pool_count = 5
+tcp_mux = true
+login_fail_exit = true
+protocol = tcp
+"
+}
+
+Server_strutrue ()
+{
+some_setting
+frp_version="0.16.1"
+Structure="$(uname -p | grep -o 64)"
+if [ ${Structure} -eq 64 ]; then
+cpus="amd64"
+else
+cpus="arm"
+fi
+dw_url="https://github.com/fatedier/frp/releases/download/v${frp_version}/frp_${frp_version}_linux_${cpus}.tar.gz"
+frp_package="frp_${frp_version}_linux_${cpus}.tar.gz"
+frp_name="frp_${frp_version}_linux_${cpus}"
+}
+
+Install_frp ()
+{
+some_setting
+Server_Setting
+Client_Setting
+Server_strutrue
+cd ${Install_Path}
 	echo "檢查使否已安裝frp..."
 		if [ -d "/root/frp" ]; then
 			echo "已安裝frp"
@@ -121,27 +156,28 @@ esac
 			read -p "請輸入(1-2):" decide
 				case ${decide} in
 				1)
+					cd ${Install_Path}
 					killall frps || echo "frps have been stop"
 					wait
-					rm -rf /root/frp
+					rm -rf frp
 					rm -rf /etc/init.d/frps
 					rm -rf /etc/systemd/system/frp.service
 					wait
 					echo "uninstall success"
 					echo "reinstalling..."
-					wget -P /root https://github.com/fatedier/frp/releases/download/v0.16.0/frp_0.16.0_linux_amd64.tar.gz
+					wget -P ${Install_Path} ${dw_url}
 					wait
-					tar -zxvf  /root/frp_0.16.0_linux_amd64.tar.gz
+					tar -zxvf  ${frp_package}
 					wait
-					mv /root/frp_0.16.0_linux_amd64 /root/frp
+					mv ${frp_package} frp
 					wait
-					rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
+					rm -rf /root/${frp_package}
 					wait
 					if [ ${platform} -eq 1 ]; then
-					conf_file > /root/frp/frps.ini
+					echo "${Server_Conf_file}" > /root/frp/frps.ini
 					wait
 					else
-					conf_file > /root/frp/frpc.ini
+					echo "${Clent_Conf_file}" > /root/frp/frpc.ini
 					wait
 					fi
 					wait
@@ -156,78 +192,30 @@ esac
 					;;
 					esac
 		else
+				cd ${Install_Path}
 				echo "安裝中..."
-				wget -P /root https://github.com/fatedier/frp/releases/download/v0.16.0/frp_0.16.0_linux_amd64.tar.gz
+				wget -P ${Install_Path} ${dw_url}
 				wait
-				tar -zxvf  /root/frp_0.16.0_linux_amd64.tar.gz
+				tar -zxvf  ${frp_package}
 				wait
-				mv /root/frp_0.16.0_linux_amd64 /root/frp
+				mv ${frp_name} frp
 				wait
-				rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
+				rm -rf ${frp_package}
 				wait
 					if [ ${platform} -eq 1 ]; then
-					conf_file > /root/frp/frps.ini
+					echo "${Server_Conf_file}" > /root/frp/frps.ini
 					wait
 					else
-					conf_file > /root/frp/frpc.ini
+					echo "${Clent_Conf_file}" /root/frp/frpc.ini
 					wait
 					fi
 		fi
-	;;
-	2)
-	echo "檢查使否已安裝frp..."
-		if [ -d "/root/frp" ]; then
-			echo "已安裝frp"
-			echo "是否要重新安裝?"
-			echo "(1).Yes (2).No"
-			read -p "請輸入(1-2):" decide
-				case ${decide} in
-				1)
-					killall frps || echo "frps have been stop"
-					wait
-					rm -rf /root/frp
-					rm -rf /etc/init.d/frps
-					rm -rf /etc/systemd/system/frp.service
-					wait
-					echo "uninstall success"
-					echo "reinstalling..."
-					wget -P /root https://github.com/fatedier/frp/releases/download/v0.16.0/frp_0.16.0_linux_amd64.tar.gz
-					wait
-					tar -zxvf  /root/frp_0.16.0_linux_amd64.tar.gz
-					wait
-					mv /root/frp_0.16.0_linux_amd64 /root/frp
-					wait
-					rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
-					wait
-					conf_file > /root/frp/frpc.ini
-					wait
-					echo "reinstall success"
-					read -p "Press any key to continue." var
-					clear
-					;;
-				2)
-					continue
-					clear
-					
-					;;
-					esac
-		else
-				echo "安裝中..."
-				wget -P /root https://github.com/fatedier/frp/releases/download/v0.16.0/frp_0.16.0_linux_amd64.tar.gz
-				wait
-				tar -zxvf  /root/frp_0.16.0_linux_amd64.tar.gz
-				wait
-				mv /root/frp_0.16.0_linux_amd64 /root/frp
-				wait
-				rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
-				wait
-				echo "${conf_file}" > /root/frp/frpc.ini
-		fi
-	;;
-	esac
-	}
-	start_frp () 
-	{
+}
+
+Start_frp ()
+{
+frp_path="/root/frp"
+cd ${frp_path}
 	case ${platform} in
 	1)
 		if [ -d "/root/frp" ]; then
@@ -235,7 +223,7 @@ esac
 		${nohup} /root/frp/frps -c /root/frp/frps.ini  > /root/frp/nohup-frps.out 2>&1&
 		echo "starting frps server"
 		else
-		echo "frp尚未安裝"
+		echo "frp have not been install"
 		fi
 		;;
 	2)
@@ -244,251 +232,126 @@ esac
 		${nohup} /root/frp/frpc -c /root/frp/frpc.ini  > /root/frp/nohup-frpc.out 2>&1&
 		echo "starting frpc server"
 		else
-		echo "frp尚未安裝"
+		echo "frp have not been install"
 		fi
 		;;	
 	esac
-	}
-	stop_frp () 
-	{
+}
+
+Stop_frp () 
+{
+some_setting
 	case ${platform} in
 	1)
-		if [ -f "/bin/killall" ]; then
+		if [ -f "/usr/bin/killall" ]; then
 		echo ""
 		else
-		yum install psmisc -y || apt-get install psmisc -y
+		yum install psmisc -y || apt-get install psmisc -y || continue
 		fi
 		wait
 		if [ "${frps_task}" = "frps" ]; then
-		killall frps
+		${kill_task_frps}
 		wait
 		echo "frp server stop success"
 		read -p "Press any key to continue." var
 		clear
 		else
-		echo "frps尚未啟動"
+		echo "frps have not start"
 		fi
 		;;
 	2)
-		if [ -f "/bin/killall" ]; then
+		if [ -f "/usr/bin/killall" ]; then
 		echo ""
 		else
 		wait
-		yum install psmisc -y || apt-get install psmisc -y
+		yum install psmisc -y || apt-get install psmisc -y || continue
 		fi
 		if [ "${frpc_task}" = "frpc" ]; then
-		killall frpc
+		${kill_task_frpc}
 		wait
 		echo "frp client stop success"
 		read -p "Press any key to continue." var
 		clear
 		else
-		echo "frpc尚未啟動"
+		echo "frpc have not been start"
 		fi
 		;;
 	esac
-	}
-	frp_boot_up ()
-	{
-	case ${platform} in
-	1)
-		if [ "${search_dash}" = "dash" ]; then
-			sudo dpkg-reconfigure dash
+}
+
+frp_boot_up ()
+{
+some_setting
+systemctl_boot_up_conf
+service_boot_up_conf
+	if [ "${search_dash}" = "dash" ]; then
+		sudo dpkg-reconfigure dash
+		wait
+		read -p "Press any key to continue." var
+	else
+		if [  "${systemctl}" = "/bin/systemctl" ]; then
+			if [ -d "/usr/lib/systemd/system" ]; then
+			echo "${service_file}" > /usr/lib/systemd/system/frp.service
+			chmod +x /usr/lib/systemd/system/frp.service
+			else
+			echo "/usr/lib/systemd/system/system folder does not exist"
+			echo "Creating..."
+			mkdir -p /usr/lib/systemd/system
+			echo "${service_file}" > /usr/lib/systemd/system/frp.service
+			chmod +x /usr/lib/systemd/system/frp.service
+			fi
 			wait
+			systemctl enable frp.service
+			echo "add success"
+			echo "systemctl [start|stop|status|restart|enable|disable] frp.service"
 			read -p "Press any key to continue." var
+			
 		else
-			source /etc/os-release 
-		case $ID in
-		debian|ubuntu|devuan)
-			mkdir -p /root/frp/
-			touch /etc/init.d/frps
-			chmod 755 /etc/init.d/frps
+			if [ -d "/root/frp" ]; then
+			continue
+			else
+			mkdir -p /root/frp
+			fi
+			if [ -f "/etc/init.d/frp" ]; then
+			continue
+			else
+			touch /etc/init.d/frp
+			fi
+			chmod 755 /etc/init.d/frp
+			if [ -f "/root/frp/frp-start.sh" ]; then
+			continue
+			else
 			touch /root/frp/frp-start.sh
+			fi
 			chmod +x /root/frp/frp-start.sh
-			echo "nohup="/usr/bin/nohup"
-			nohup ./root/frp/frps -c /root/frp/frps.ini &" > /root/frp/frp-start.sh
-			echo '#!/bin/sh
-### BEGIN INIT INFO
-# Provides: frp
-# Required-Start: $remote_fs $network
-# Required-Stop: $remote_fs $network
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
-# Short-Description: frp nettool
-### END INIT INFO
-
-case "$1" in
-start)
-
-echo -n "starting frp"
-/bin/sh /root/frp/frp-start.sh
-
-;;
-stop)
-
-echo -n "stoping frp"
-killall frps
-;;
-restart)
-
-killall frps
-/bin/sh /root/frp/frp-start.sh
-;;
-esac
-exit ' > /etc/init.d/frps
 			wait
-			update-rc.d frps defaults
-			echo "Ubuntu添加開機自啟成功"
-			echo "相關指令為service frps (start|stop|restart)"
-				read -p "Press any key to continue." var
-				clear
-		;;
-		centos|fedora|rhel)
-			touch /root/frp/frp-start.sh
-				chmod +x /root/frp/frp-start.sh
-				echo 'nohup="/usr/bin/nohup"
-			nohup ./root/frp/frps -c /root/frp/frps.ini &' > /root/frp/frp-start.sh
-				touch /etc/systemd/system/frp.service
-				chmod 754 /etc/systemd/system/frp.service
-				echo "[Unit]
-			Description=FRP Service
-			[Service]
-			User=root
-			Type=forking
-			ExecStart=/usr/bin/sh /root/frp/frp-start.sh
-			ExecStop=/usr/bin/killall frps
-			[Install]
-			WantedBy=multi-user.target" > /etc/systemd/system/frp.service
+			if [ ${platform} -eq 1]; then
+			echo "nohup="/usr/bin/nohup" 
+			$nohup /root/frp/frps -c /root/frp/frps.ini &" > /root/frp/frp-start.sh
+			elif [ ${platform} -eq 2]; then
+			echo "nohup="/usr/bin/nohup"
+			$nohup /root/frp/frpc -c /root/frp/frpc.ini &" > /root/frp/frp-start.sh
+			else
+			echo "Oops!!! Something Error"
+			break
+			fi
+			wait
+			echo "${init_d}" > /etc/init.d/frp
+			wait
+			update-rc.d frp defaults
 			wait
 			echo "add success"
-			echo "使用方式 systemctl (start|stop|status|restart|enable) frp.service"
-				read -p "Press any key to continue." var
-				clear
-			
-		;;
-		esac
-		fi
-	;;
-	2)
-		if [ "${search_dash}" = "dash" ]; then
-			sudo dpkg-reconfigure dash
-			wait
+			echo "service frp (start|stop|restart)"
 			read -p "Press any key to continue." var
-		else
-			source /etc/os-release 
-		case $ID in
-		debian|ubuntu|devuan)
-			touch /etc/init.d/frpc
-			chmod 755 /etc/init.d/frpc
-			touch /root/frp/frp-start.sh
-			chmod +x /root/frp/frp-start.sh
-			echo "nohup="/usr/bin/nohup"
-			nohup ./root/frp/frpc -c /root/frp/frpc.ini &" > /root/frp/frp-start.sh
-			echo '#!/bin/sh
-### BEGIN INIT INFO
-# Provides: frp
-# Required-Start: $remote_fs $network
-# Required-Stop: $remote_fs $network
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
-# Short-Description: frp nettool
-### END INIT INFO
- 
-case "$1" in
-start)
- 
-echo -n "starting frp"
-/bin/sh /root/frp/frp-start.sh
-
-;;
-stop)
-			 
-echo -n "stoping frp"
-killall frpc
-;;
-restart)
-			 
-killall frpc
-/bin/sh /root/frp/frp-start.sh
-;;
-esac
-exit ' > /etc/init.d/frpc
-			wait
-			update-rc.d frpc defaults
-			echo "Ubuntu添加開機自啟成功"
-			echo "相關指令為service frpc (start|stop|restart)"
-				read -p "Press any key to continue." var
-				clear
-		;;
-		centos|fedora|rhel)
-			touch /root/frp/frp-start.sh
-				chmod +x /root/frp/frp-start.sh
-				echo 'nohup="/usr/bin/nohup"
-			nohup ./root/frp/frpc -c /root/frp/frpc.ini &' > /root/frp/frp-start.sh
-				touch /etc/systemd/system/frp.service
-				chmod 754 /etc/systemd/system/frp.service
-				echo "[Unit]
-			Description=FRP Service
-			[Service]
-			User=root
-			Type=forking
-			ExecStart=/usr/bin/sh /root/frp/frp-start.sh
-			ExecStop=/usr/bin/killall frpc
-			[Install]
-			WantedBy=multi-user.target" > /etc/systemd/system/frp.service
-			wait
-			echo "使用方式 systemctl (start|stop|status|restart|enable) frp.service"
-				read -p "Press any key to continue." var
-				clear
 			
-		;;
-		esac
 		fi
-	;;
-	esac
-	}
-	edit_frp ()
-	{ 
-	case ${platform} in
-	1)
-		vim /root/frp/frps.ini
-		wait
-		if [ "${frps_task}" = "frps" ]; then
-		killall frps
-		wait
-		nohup /root/frp/frps -c /root/frp/frps.ini &
-		wait
-		else
-		continue
-		fi
-		;;
-	2)
-		vim /root/frp/frpc.ini
-		wait
-		if [ "${frps_task}" = "frps" ]; then
-		killall frps
-		wait
-		nohup /root/frp/frpc -c /root/frp/frpc.ini &
-		wait
-		else
-		continue
-		fi		
-		;;
-	esac
-	}	
-	frp_log ()
-	{
-	
-		frp_log="$(ls /root/frp/frp*.log)"
-		if [ -f "${frp_log}" ]; then
-		watch tail /root/frp/frp*.log
-		else
-		echo "尚未存在任何日誌"
-		fi
-	}
-	uninstall_frp ()
-	{
-	
+	fi
+}
+
+Uninstall_frp ()
+{
+some_setting
+Server_strutrue
 		if [ "${frps_task}" = "frps" ]; then
 		killall frps 
 		echo "frp server have been stop"
@@ -497,120 +360,107 @@ exit ' > /etc/init.d/frpc
 		echo "frp client have been stop"
 		wait
 		fi
-		rm -rf /root/frp
-		rm -rf /root/frp_0.16.0_linux_amd64.tar.gz
-		rm -rf /etc/init.d/frps
-		rm -rf /etc/init.d/frpc
-		rm -rf /etc/systemd/system/frp.service
+		if [ -d "/root/frp" ]; then
+		rm -r /root/frp
+		else
+		continue
+		fi
+		if [ -f "/root/${frp_package}" ]; then
+		rm -r /root/${frp_package}
+		else
+		continue
+		fi
+		if [ -f "/etc/init.d/frp*" ]; then
+		rm -r /etc/init.d/frps
+		rm -r /etc/init.d/frpc
+		else
+		continue
+		fi
+		if [ -f "/etc/systemd/system/frp.service" ]; then
+		rm -r /etc/systemd/system/frp.service
+		else
+		continue
+		fi
 		echo "uninstall success"
 		read -p "Press any key to continue." var
-		clear
-	}
+}
 
-	until false 
-	do
-	frps_task="$(ps -e | grep -o frps)"
-	frpc_task="$(ps -e | grep -o frpc)"
-	search_dash="$(ls -l /bin/sh | grep -o dash)"
-case ${platform} in
+echo ""
+echo "choose whitch frp platform you want to use"
+echo "(1).frp for server"
+echo "(2).frp for client"
+echo "(3).quit"
+read -p "Please Input Number (1-3):" platform
+	case ${platform} in
 1)
-	echo "(1).安裝frp"
-	echo "(2).啟動frp"
-	echo "(3).停止frp"
-	echo "(4).將frp加入開機啟動"
-	echo "(5).編輯frp設定檔"
-	echo "(6).查看frp log檔"
-	echo "(7).解除安裝frp"
-	echo "(8).離開"
-	read -p "請輸入選項(1-8):" option
-	case ${option} in
-		1)
-		install_frp 
-		;;
-		2)
-		start_frp
-		;;
-		3)
-		stop_frp
-		;;
-		4)
-		frp_boot_up
-		;;
-		5)
-		edit_frp
-		;;
-		6)
-		frp_log
-		;;
-		7)
-		uninstall_frp
-		;;
-		8)
-			read -p "Press any key to continue." var
-			clear
-			break
-		;;
-		*)
-			echo "輸入錯誤，請重新輸入一次"
-			read -p "Press any key to continue." var
-			clear
-		;;
+echo "(1).Install frps"
+echo "(2).Start frps"
+echo "(3).Stop frps"
+echo "(4).Add frps to boot up"
+echo "(5).Edit frps config"
+echo "(6).Watch frps log"
+echo "(7).Uninstall frps"
+echo "(8).Exit"
+read -p "Please Input Number (1-8):" choice
+	case ${choice} in
+	1)	
+		Ask_answer
+		Install_frp
+	;;
+	2)	Start_frp
+	;;
+	3)	Stop_frp
+	;;
+	4)	frp_boot_up
+	;;
+	5)	vim /root/frp/frps.ini
+	;;
+	6)	watch tail /root/frp/frp*.log
+	;;
+	7)	Uninstall_frp
+	;;
+	8)	break
+	;;
 	esac
 ;;
 2)
-	echo "(1).安裝frp"
-	echo "(2).啟動frp"
-	echo "(3).停止frp"
-	echo "(4).將frp加入開機啟動"
-	echo "(5).編輯frp設定檔"
-	echo "(6).查看frp log檔"
-	echo "(7).解除安裝frp"
-	echo "(8).離開"
-	read -p "請輸入選項(1-8):" option
-	case ${option} in
-		1)
-		read -p "請輸入frp server IP 位置 :" ip_address
-		wait
-		install_frp 
-		;;
-		2)
-		start_frp
-		;;
-		3)
-		stop_frp
-		;;
-		4)
-		frp_boot_up
-		;;
-		5)
-		edit_frp
-		;;
-		6)
-		frp_log
-		;;
-		7)
-		uninstall_frp
-		;;
-		8)
-			read -p "Press any key to continue." var
-			clear
-			break
-		;;
-		*)
-			echo "輸入錯誤，請重新輸入一次"
-			read -p "Press any key to continue." var
-			clear
-		;;
+echo "(1).Install frpc"
+echo "(2).Start frpc"
+echo "(3).Stop frpc"
+echo "(4).Add frpc to boot up"
+echo "(5).Edit frpc config"
+echo "(6).Watch frpc log"
+echo "(7).Uninstall frpc"
+echo "(8).Exit"
+read -p "Please Input Number (1-8):" choice
+	case ${choice} in
+	1)	
+		Ask_answer
+		Install_frp
+	;;
+	2)	
+	cd ${Install_Path}/frp
+	Start_frp
+	;;
+	3)	Stop_frp
+	;;
+	4)	frp_boot_up
+	;;
+	5)	vim /root/frp/frpc.ini
+	;;
+	6)	watch tail /root/frp/frp*.log
+	;;
+	7)	Uninstall_frp
+	;;
+	8)	break
+	;;
 	esac
 ;;
 3)
-	read -p "Press any key to continue." var
-	clear
-	exit
+exit
 ;;
 *)
-	clear
+	echo "Error Input Please Try Again"
 ;;
 esac
-	done
-done
+
