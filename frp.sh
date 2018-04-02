@@ -88,8 +88,7 @@ exit'
 
 Server_Setting ()
 {
-Server_Conf_file="
-[common]
+Server_Conf_file="[common]
 bind_addr = ${Server_IP}
 bind_port = 7000
 kcp_bind_port = 7000
@@ -109,8 +108,7 @@ tcp_mux = true
 
 Client_Setting ()
 {
-Clent_Conf_file="
-[common]
+Clent_Conf_file="[common]
 server_addr = ${Server_IP}
 server_port = 7000
 log_file = ./frpc.log
@@ -178,19 +176,18 @@ cd ${Install_Path}
 					if [ ${platform} -eq 1 ]; then
 					echo "${Server_Conf_file}" > /root/frp/frps.ini
 					wait
-					else
+					elif [ ${platform} -eq 2 ]; then
 					echo "${Clent_Conf_file}" > /root/frp/frpc.ini
 					wait
+					else
+					continue
 					fi
 					wait
 					echo "reinstall success"
 					read -p "Press any key to continue." var
-					clear
 					;;
 				2)
 					continue
-					clear
-					
 					;;
 					esac
 		else
@@ -207,9 +204,11 @@ cd ${Install_Path}
 					if [ ${platform} -eq 1 ]; then
 					echo "${Server_Conf_file}" > /root/frp/frps.ini
 					wait
-					else
-					echo "${Clent_Conf_file}" /root/frp/frpc.ini
+					elif [ ${platform} -eq 2 ]; then
+					echo "${Clent_Conf_file}" > /root/frp/frpc.ini
 					wait
+					else
+					continue
 					fi
 		fi
 }
@@ -361,7 +360,10 @@ Server_strutrue
 		killall frpc
 		echo "frp client have been stop"
 		wait
+		else
+		continue
 		fi
+		wait
 		if [ -d "/root/frp" ]; then
 		rm -r /root/frp
 		else
@@ -384,6 +386,7 @@ Server_strutrue
 		continue
 		fi
 		echo "uninstall success"
+		wait
 		read -p "Press any key to continue." var
 }
 
@@ -419,7 +422,9 @@ read -p "Please Input Number (1-8):" choice
 	;;
 	5)	vim /root/frp/frps.ini
 	;;
-	6)	watch tail /root/frp/frp*.log
+	6)
+		cd /root/frp
+		watch tail frp*.log nohup-frps.out
 	;;
 	7)	Uninstall_frp
 	;;
@@ -443,6 +448,7 @@ read -p "Please Input Number (1-8):" choice
 		Install_frp
 	;;
 	2)	
+	some_setting
 	cd ${Install_Path}/frp
 	Start_frp
 	;;
@@ -452,7 +458,9 @@ read -p "Please Input Number (1-8):" choice
 	;;
 	5)	vim /root/frp/frpc.ini
 	;;
-	6)	watch tail /root/frp/frp*.log
+	6)	
+		cd /root/frp
+		watch tail frp*.log nohup-frpc.out
 	;;
 	7)	Uninstall_frp
 	;;
