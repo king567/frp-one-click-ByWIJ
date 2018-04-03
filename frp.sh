@@ -31,9 +31,9 @@ read -p "input https Virtual host Port:" Vhost_https_port
 
 systemctl_boot_up_conf ()
 {
-service_file="
-[Unit]
-Description=FRP Service
+if [ ${platform} -eq 1 ]; then
+service_file="[Unit]
+Description=FRP Server
 After=network.target syslog.target
 Wants=network.target
 
@@ -47,6 +47,24 @@ ExecStop=/usr/bin/killall frps
 [Install]
 WantedBy=multi-user.target
 "
+
+elif [ ${platform} -eq 2 ]; then
+service_file="[Unit]
+Description=FRP Client
+After=network.target syslog.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/root/frp/frpc -c /root/frp/frpc.ini
+Restart=always
+RestartSec=1min
+ExecStop=/usr/bin/killall frps
+
+[Install]
+WantedBy=multi-user.target
+"
+fi
 }
 
 service_boot_up_conf ()
@@ -298,6 +316,7 @@ service_boot_up_conf
 			chmod +x /usr/lib/systemd/system/frp.service
 			fi
 			wait
+			systemctl daemon-reload
 			systemctl enable frp.service
 			echo "add success"
 			echo "systemctl [start|stop|status|restart|enable|disable] frp.service"
