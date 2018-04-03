@@ -59,7 +59,7 @@ Type=simple
 ExecStart=/root/frp/frpc -c /root/frp/frpc.ini
 Restart=always
 RestartSec=1min
-ExecStop=/usr/bin/killall frps
+ExecStop=/usr/bin/killall frpc
 
 [Install]
 WantedBy=multi-user.target
