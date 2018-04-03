@@ -374,29 +374,33 @@ Server_strutrue
 		killall frpc
 		echo "frp client have been stop"
 		else
-		echo "frp have not process"
+		echo "frp service have not process"
 		fi
 		
 		if [ -d "/root/frp" ]; then
 		rm -rf /root/frp
+		echo "rmove /root/frp folder success"
 		else
-		echo "rmove /root/frp folder success" 
+		echo "/root/frp folder not exist" 
 		fi
 		if [ -f "/root/${frp_package}" ]; then
 		rm -rf /root/${frp_package}
-		else
 		echo "rmove /root/${frp_package} success" 
+		else
+		echo "/root/${frp_package} file not exist" 
 		fi
 		if [ -f "/etc/init.d/frp*" ]; then
 		rm -rf /etc/init.d/frps
 		rm -rf /etc/init.d/frpc
+		echo "rmove /etc/init.d/frp success"
 		else
-		echo "rmove /etc/init.d/frp success" 
+		echo "/etc/init.d/frp not exist" 
 		fi
 		if [ -f "/usr/lib/systemd/system/frp.service" ]; then
 		rm -rf /usr/lib/systemd/system/frp.service
-		else
 		echo "rmove frp.service success" 
+		else
+		echo "frp.service not exist" 
 		fi
 		echo "uninstall success"
 		wait
