@@ -496,6 +496,7 @@ exit
 ;;
 *)
 	echo "Error Input Please Try Again"
+	break
 ;;
 esac
 done
