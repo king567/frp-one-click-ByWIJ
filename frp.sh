@@ -245,7 +245,7 @@ some_setting
 		if [ -f "/usr/bin/killall" ]; then
 		echo ""
 		else
-		yum install psmisc -y || apt-get install psmisc -y || continue
+		yum install psmisc -y || apt-get install psmisc -y || echo ""
 		fi
 		wait
 		if [ "$(ps -e | grep -o frps)" = "frps" ]; then
@@ -253,7 +253,6 @@ some_setting
 		wait
 		echo "frp server stop success"
 		read -p "Press any key to continue." var
-		clear
 		else
 		echo "frps have not start"
 		fi
@@ -263,14 +262,13 @@ some_setting
 		echo ""
 		else
 		wait
-		yum install psmisc -y || apt-get install psmisc -y || continue
+		yum install psmisc -y || apt-get install psmisc -y || echo ""
 		fi
 		if [ "$(ps -e | grep -o frpc)" = "frpc" ]; then
 		killall frpc
 		wait
 		echo "frp client stop success"
 		read -p "Press any key to continue." var
-		clear
 		else
 		echo "frpc have not been start"
 		fi
