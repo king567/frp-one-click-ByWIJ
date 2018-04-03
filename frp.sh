@@ -217,7 +217,8 @@ cd ${frp_path}
 	1)
 		if [ -d "/root/frp" ]; then
 		nohup="/usr/bin/nohup"
-		${nohup} /root/frp/frps -c /root/frp/frps.ini  > /root/frp/nohup-frps.out 2>&1&
+		cd /root/frp
+		${nohup} ./frps -c ./frps.ini &
 		echo "starting frp server"
 		else
 		echo "frp have not been install"
@@ -226,7 +227,8 @@ cd ${frp_path}
 	2)
 		if [ -d "/root/frp" ]; then
 		nohup="/usr/bin/nohup"
-		${nohup} /root/frp/frpc -c /root/frp/frpc.ini  > /root/frp/nohup-frpc.out 2>&1&
+		cd /root/frp
+		${nohup} ./frpc -c ./frpc.ini &
 		echo "starting frp client"
 		else
 		echo "frp have not been install"
@@ -418,7 +420,7 @@ read -p "Please Input Number (1-8):" choice
 	;;
 	6)
 		cd /root/frp
-		watch tail frp*.log nohup-frps.out
+		watch tail frp*.log nohup*.out
 	;;
 	7)	Uninstall_frp
 	;;
@@ -454,7 +456,7 @@ read -p "Please Input Number (1-8):" choice
 	;;
 	6)	
 		cd /root/frp
-		watch tail frp*.log nohup-frpc.out
+		watch tail frp*.log nohup*.out
 	;;
 	7)	Uninstall_frp
 	;;
