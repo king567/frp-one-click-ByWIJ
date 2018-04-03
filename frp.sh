@@ -16,10 +16,6 @@ some_setting ()
 {
 frp_path="/root/frp"
 Install_Path="/root"
-kill_task_frps="$(killall frps)"
-kill_task_frpc="$(killall frpc)"
-frps_task="$(ps -e | grep -o frps)"
-frpc_task="$(ps -e | grep -o frpc)"
 search_dash="$(ls -l /bin/sh | grep -o dash)"
 systemctl="$(ls /bin/systemctl)"
 }
@@ -222,7 +218,7 @@ cd ${frp_path}
 		if [ -d "/root/frp" ]; then
 		nohup="/usr/bin/nohup"
 		${nohup} /root/frp/frps -c /root/frp/frps.ini  > /root/frp/nohup-frps.out 2>&1&
-		echo "starting frps server"
+		echo "starting frp server"
 		else
 		echo "frp have not been install"
 		fi
@@ -231,7 +227,7 @@ cd ${frp_path}
 		if [ -d "/root/frp" ]; then
 		nohup="/usr/bin/nohup"
 		${nohup} /root/frp/frpc -c /root/frp/frpc.ini  > /root/frp/nohup-frpc.out 2>&1&
-		echo "starting frpc server"
+		echo "starting frp client"
 		else
 		echo "frp have not been install"
 		fi
@@ -250,8 +246,8 @@ some_setting
 		yum install psmisc -y || apt-get install psmisc -y || continue
 		fi
 		wait
-		if [ "${frps_task}" = "frps" ]; then
-		${kill_task_frps}
+		if [ "$(ps -e | grep -o frps)" = "frps" ]; then
+		killall frps
 		wait
 		echo "frp server stop success"
 		read -p "Press any key to continue." var
@@ -267,8 +263,8 @@ some_setting
 		wait
 		yum install psmisc -y || apt-get install psmisc -y || continue
 		fi
-		if [ "${frpc_task}" = "frpc" ]; then
-		${kill_task_frpc}
+		if [ "$(ps -e | grep -o frpc)" = "frpc" ]; then
+		killall frpc
 		wait
 		echo "frp client stop success"
 		read -p "Press any key to continue." var
@@ -351,39 +347,37 @@ service_boot_up_conf
 
 Uninstall_frp ()
 {
-some_setting
 Server_strutrue
-		if [ "${frps_task}" = "frps" ]; then
+		if [ "$(ps -e | grep -o frps)" = "frps" ]; then
 		killall frps 
 		echo "frp server have been stop"
-		elif [ "${frpc_task}" = "frpc" ]; then
+		elif [ "$(ps -e | grep -o frpc)" = "frpc" ]; then
 		killall frpc
 		echo "frp client have been stop"
-		wait
 		else
-		continue
+		echo "frp have not process"
 		fi
-		wait
+		
 		if [ -d "/root/frp" ]; then
-		rm -r /root/frp
+		rm -rf /root/frp
 		else
-		continue
+		echo "rmove /root/frp folder success" 
 		fi
 		if [ -f "/root/${frp_package}" ]; then
-		rm -r /root/${frp_package}
+		rm -rf /root/${frp_package}
 		else
-		continue
+		echo "rmove /root/${frp_package} success" 
 		fi
 		if [ -f "/etc/init.d/frp*" ]; then
-		rm -r /etc/init.d/frps
-		rm -r /etc/init.d/frpc
+		rm -rf /etc/init.d/frps
+		rm -rf /etc/init.d/frpc
 		else
-		continue
+		echo "rmove /etc/init.d/frp success" 
 		fi
 		if [ -f "/usr/lib/systemd/system/frp.service" ]; then
-		rm -r /usr/lib/systemd/system/frp.service
+		rm -rf /usr/lib/systemd/system/frp.service
 		else
-		continue
+		echo "rmove frp.service success" 
 		fi
 		echo "uninstall success"
 		wait
