@@ -403,6 +403,16 @@ Server_strutrue
 		read -p "Press any key to continue." var
 }
 
+Watch_log ()
+{
+if [ -f "$(ls /root/frp/frp*.log)" ]; then
+	cd /root/frp
+	watch tail frp*.log nohup*.out
+else
+	echo "Log file does not exist!!"
+fi
+}
+
 echo ""
 echo "choose whitch frp platform you want to use"
 echo "(1).frp for server"
@@ -435,9 +445,7 @@ read -p "Please Input Number (1-8):" choice
 	;;
 	5)	vim /root/frp/frps.ini
 	;;
-	6)
-		cd /root/frp
-		watch tail frp*.log nohup*.out
+	6)  Watch_log
 	;;
 	7)	Uninstall_frp
 	;;
@@ -471,9 +479,7 @@ read -p "Please Input Number (1-8):" choice
 	;;
 	5)	vim /root/frp/frpc.ini
 	;;
-	6)	
-		cd /root/frp
-		watch tail frp*.log nohup*.out
+	6)  Watch_log
 	;;
 	7)	Uninstall_frp
 	;;
