@@ -240,22 +240,22 @@ cd ${frp_path}
 	case ${platform} in
 	1)
 		if [ -d "/root/frp" ]; then
-		nohup="/usr/bin/nohup"
 		cd /root/frp
-		${nohup} ./frps -c ./frps.ini &
-		echo "starting frp server"
+		(./frps -c ./frps.ini &) 
+		wait
+		echo -e "\n${COLOR_GREEN}starting frp server${COLOR_REST}\n"
 		else
-		echo "frp have not been install"
+		echo -e "\n${COLOR_RED}frp have not been install${COLOR_REST}\n"
 		fi
 		;;
 	2)
 		if [ -d "/root/frp" ]; then
-		nohup="/usr/bin/nohup"
 		cd /root/frp
-		${nohup} ./frpc -c ./frpc.ini &
-		echo "starting frp client"
+		(./frpc -c ./frpc.ini &) 
+		wait
+		echo -e "\n${COLOR_GREEN}starting frp client${COLOR_REST}\n"
 		else
-		echo "frp have not been install"
+		echo -e "\n${COLOR_RED}frp have not been install${COLOR_REST}\n"
 		fi
 		;;	
 	esac
@@ -275,10 +275,9 @@ some_setting
 		if [ "$(ps -e | grep -o frps)" = "frps" ]; then
 		killall frps
 		wait
-		echo "frp server stop success"
-		read -p "Press any key to continue." var
+		echo -e "\n${COLOR_GREEN}frp server stop success${COLOR_REST}\n"
 		else
-		echo "frps have not start"
+		echo -e "\n${COLOR_RED}frps have not start${COLOR_REST}\n"
 		fi
 		;;
 	2)
@@ -291,10 +290,9 @@ some_setting
 		if [ "$(ps -e | grep -o frpc)" = "frpc" ]; then
 		killall frpc
 		wait
-		echo "frp client stop success"
-		read -p "Press any key to continue." var
+		echo -e "\n${COLOR_GREEN}frp client stop success${COLOR_REST}\n"
 		else
-		echo "frpc have not been start"
+		echo -e "\n${COLOR_RED}frpc have not been start${COLOR_REST}\n"
 		fi
 		;;
 	esac
