@@ -187,7 +187,7 @@ cd ${Install_Path}
 					wait
 					tar -zxvf  ${frp_package}
 					wait
-					mv ${frp_package} frp
+					mv ${frp_name} frp
 					wait
 					rm -rf /root/${frp_package}
 					wait
@@ -201,7 +201,7 @@ cd ${Install_Path}
 					continue
 					fi
 					wait
-					echo "reinstall success"
+					echo -e "\n${COLOR_GREEN}reinstall success !!!${COLOR_REST}\n"
 					read -p "Press any key to continue." var
 					;;
 				2)
@@ -210,7 +210,7 @@ cd ${Install_Path}
 					esac
 		else
 				cd ${Install_Path}
-				echo "安裝中..."
+				echo "Installing..."
 				wget -P ${Install_Path} ${dw_url}
 				wait
 				tar -zxvf  ${frp_package}
@@ -226,8 +226,10 @@ cd ${Install_Path}
 					echo "${Clent_Conf_file}" > /root/frp/frpc.ini
 					wait
 					else
-					continue
+					echo -e "\n${COLOR_RED}Oops Something Error !!!${COLOR_REST}\n"
 					fi
+				wait
+				echo -e "\n${COLOR_GREEN} Install Success !!!${COLOR_REST}\n"
 		fi
 }
 
