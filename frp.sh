@@ -166,12 +166,12 @@ Server_Setting
 Client_Setting
 Server_strutrue
 cd ${Install_Path}
-	echo "檢查使否已安裝frp..."
+	echo "checking frp..."
 		if [ -d "/root/frp" ]; then
-			echo "已安裝frp"
-			echo "是否要重新安裝?"
+			echo "You had been installed frp"
+			echo "Do you want to reinstall it?"
 			echo "(1).Yes (2).No"
-			read -p "請輸入(1-2):" decide
+			read -p "Please Input Number (1-2): " decide
 				case ${decide} in
 				1)
 					cd ${Install_Path}
@@ -345,10 +345,10 @@ service_boot_up_conf
 			fi
 			chmod +x /root/frp/frp-start.sh
 			wait
-			if [ ${platform} -eq 1]; then
+			if [ ${platform} -eq 1 ]; then
 			echo "nohup="/usr/bin/nohup" 
 			$nohup /root/frp/frps -c /root/frp/frps.ini &" > /root/frp/frp-start.sh
-			elif [ ${platform} -eq 2]; then
+			elif [ ${platform} -eq 2 ]; then
 			echo "nohup="/usr/bin/nohup"
 			$nohup /root/frp/frpc -c /root/frp/frpc.ini &" > /root/frp/frp-start.sh
 			else
@@ -417,10 +417,28 @@ if [ -f "$(ls /root/frp/frp*.log)" ]; then
 	cd /root/frp
 	watch tail frp*.log nohup*.out
 else
-	echo "Log file does not exist!!"
+	echo -e "\n${COLOR_RED}Log file does not exist!!${COLOR_REST}\n"
 fi
 }
 
+Edit_frp_setting ()
+{
+if [ ${platform} -eq 1 ]; then
+	if [ -f "/root/frp/frps.ini" ]; then
+	vim /root/frp/frps.ini
+	else
+	echo -e "\n ${COLOR_RED}frps.ini file does not exist !!!${COLOR_REST}\n"
+	fi
+elif [ ${platform} -eq 2 ]; then
+	if [ -f "/root/frp/frpc.ini" ]; then
+	vim /root/frp/frpc.ini
+	else
+	echo -e "\n ${COLOR_RED}frpc.ini file does not exist !!!${COLOR_REST}\n"
+	fi
+else
+	echo -e "\n ${COLOR_RED}Oops something Error !!!${COLOR_REST}\n"
+fi
+}
 echo ""
 echo "choose whitch frp platform you want to use"
 echo "(1).frp for server"
@@ -451,13 +469,16 @@ read -p "Please Input Number (1-8):" choice
 	;;
 	4)	frp_boot_up
 	;;
-	5)	vim /root/frp/frps.ini
+	5)	Edit_frp_setting
 	;;
 	6)  Watch_log
 	;;
 	7)	Uninstall_frp
 	;;
 	8)	break
+	;;
+	*)
+	echo -e "\n${COLOR_RED}Error Input Please Try Again${COLOR_REST}\n"
 	;;
 	esac
 ;;
@@ -485,13 +506,16 @@ read -p "Please Input Number (1-8):" choice
 	;;
 	4)	frp_boot_up
 	;;
-	5)	vim /root/frp/frpc.ini
+	5)	Edit_frp_setting
 	;;
 	6)  Watch_log
 	;;
 	7)	Uninstall_frp
 	;;
 	8)	break
+	;;
+	*)
+	echo -e "\n${COLOR_RED}Error Input Please Try Again${COLOR_REST}\n"
 	;;
 	esac
 ;;
