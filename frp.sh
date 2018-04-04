@@ -12,6 +12,10 @@ echo '|                                                        |'
 echo '|                                               By WIJ   |'
 echo '|________________________________________________________|'  
 
+COLOR_REST='\e[0m'
+COLOR_GREEN='\e[0;32m';
+COLOR_RED='\e[0;31m';
+
 some_setting ()
 {
 frp_path="/root/frp"
@@ -495,7 +499,7 @@ read -p "Please Input Number (1-8):" choice
 exit
 ;;
 *)
-	echo "Error Input Please Try Again"
+	echo -e "\n${COLOR_RED}Error Input Please Try Again${COLOR_REST}"
 	break
 ;;
 esac
