@@ -202,7 +202,6 @@ cd ${Install_Path}
 					fi
 					wait
 					echo -e "\n${COLOR_GREEN}reinstall success !!!${COLOR_REST}\n"
-					read -p "Press any key to continue." var
 					;;
 				2)
 					continue
@@ -322,9 +321,8 @@ service_boot_up_conf
 			wait
 			systemctl daemon-reload
 			systemctl enable frp.service
-			echo "add success"
-			echo "systemctl [start|stop|status|restart|enable|disable] frp.service"
-			read -p "Press any key to continue." var
+			echo -e "\n${COLOR_GREEN}add success${COLOR_REST}\n"
+			echo -e "\n${COLOR_GREEN}systemctl [start|stop|status|restart|enable|disable] frp.service${COLOR_REST}\n"
 			
 		else
 			if [ -d "/root/frp" ]; then
@@ -352,7 +350,7 @@ service_boot_up_conf
 			echo "nohup="/usr/bin/nohup"
 			$nohup /root/frp/frpc -c /root/frp/frpc.ini &" > /root/frp/frp-start.sh
 			else
-			echo "Oops!!! Something Error"
+			echo -e "\n${COLOR_RED}Oops!!! Something Error${COLOR_REST}\n"
 			break
 			fi
 			wait
@@ -361,9 +359,7 @@ service_boot_up_conf
 			update-rc.d frp defaults
 			wait
 			echo "add success"
-			echo "service frp (start|stop|restart)"
-			read -p "Press any key to continue." var
-			
+			echo "\n${COLOR_GREEN}service frp (start|stop|restart)${COLOR_REST}\n"		
 		fi
 	fi
 }
@@ -406,16 +402,15 @@ Server_strutrue
 		else
 		echo "frp.service not exist" 
 		fi
-		echo "uninstall success"
+		echo -e "\n${COLOR_GREEN}uninstall success${COLOR_REST}\n"
 		wait
-		read -p "Press any key to continue." var
 }
 
 Watch_log ()
 {
 if [ -f "$(ls /root/frp/frp*.log)" ]; then
 	cd /root/frp
-	watch tail frp*.log nohup*.out
+	watch tail frp*.log 
 else
 	echo -e "\n${COLOR_RED}Log file does not exist!!${COLOR_REST}\n"
 fi
