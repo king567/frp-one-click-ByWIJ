@@ -26,18 +26,31 @@ systemctl="$(ls /bin/systemctl)"
 
 Ask_answer ()
 {
-read -p "please input your server IP :" Server_IP
-read -p "add dashboard user :" User
-read -p "input user password :" Password
-read -p "input http Virtual host Port:" Vhost_http_port
-read -p "input https Virtual host Port:" Vhost_https_port
+read -p "please input your server IP : " Server_IP
+read -p "Please Input Frp Server Port : " Server_Port
+read -p "add dashboard user : " User
+read -p "input user password : " Password
+read -p "input http Virtual host Port : " Vhost_http_port
+read -p "input https Virtual host Port : " Vhost_https_port
 Server_IP=${Server_IP:="0.0.0.0"}
+Server_Port=${Server_Port:="7000"}
 User=${User:="king"}
-Password=${Password:=Happydaygo4}
-Vhost_http_port=${Vhost_http_port:=8080}
-Vhost_https_port=${Vhost_https_port:=9090}
+Password=${Password:="Happydaygo4"}
+Vhost_http_port=${Vhost_http_port:="8080"}
+Vhost_https_port=${Vhost_https_port:="9090"}
 }
 
+Ask_answer_client ()
+{
+read -p "Please Input Frp Server IP : " Server_IP
+read -p "Please Input Frp Server Port : " Server_Port
+read -p "Add dashboard user : " User
+read -p "Input user password : " Password
+Server_IP=${Server_IP:="0.0.0.0"}
+Server_Port=${Server_Port:="7000"}
+User=${User:="king"}
+Password=${Password:="Happydaygo4"}
+}
 systemctl_boot_up_conf ()
 {
 if [ ${platform} -eq 1 ]; then
@@ -113,8 +126,8 @@ Server_Setting ()
 {
 Server_Conf_file="[common]
 bind_addr = ${Server_IP}
-bind_port = 7000
-kcp_bind_port = 7000
+bind_port = ${Server_Port}
+kcp_bind_port = ${Server_Port}
 dashboard_port = 7500
 dashboard_user = ${User}
 dashboard_pwd = ${Password}
@@ -133,7 +146,7 @@ Client_Setting ()
 {
 Clent_Conf_file="[common]
 server_addr = ${Server_IP}
-server_port = 7000
+server_port = ${Server_Port}
 log_file = ./frpc.log
 log_level = info
 log_max_days = 3
