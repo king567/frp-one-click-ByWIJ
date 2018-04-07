@@ -31,6 +31,11 @@ read -p "add dashboard user :" User
 read -p "input user password :" Password
 read -p "input http Virtual host Port:" Vhost_http_port
 read -p "input https Virtual host Port:" Vhost_https_port
+Server_IP=${Server_IP:="0.0.0.0"}
+User=${User:="king"}
+Password=${Password:=Happydaygo4}
+Vhost_http_port=${Vhost_http_port:=8080}
+Vhost_https_port=${Vhost_https_port:=9090}
 }
 
 systemctl_boot_up_conf ()
