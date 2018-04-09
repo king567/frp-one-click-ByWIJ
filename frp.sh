@@ -15,7 +15,7 @@ echo '|________________________________________________________|'
 COLOR_REST='\e[0m'
 COLOR_GREEN='\e[0;32m';
 COLOR_RED='\e[0;31m';
-
+COLOR_YELLOW='\033[1;93m'
 some_setting ()
 {
 frp_path="/root/frp"
@@ -165,7 +165,7 @@ protocol = tcp
 Server_strutrue ()
 {
 some_setting
-frp_version="0.16.1"
+frp_version=$(wget --no-check-certificate -qO- https://api.github.com/repos/fatedier/frp/releases | grep -o '"tag_name": ".*"' |head -n 1| sed 's/"//g;s/v//g'| sed 's/tag_name: //g')
 Structure="$(uname -p | grep -o 64)"
 if [ ${Structure} -eq 64 ]; then
 cpus="amd64"
